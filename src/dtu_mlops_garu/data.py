@@ -1,8 +1,15 @@
 from pathlib import Path
-
 import typer
-from torch.utils.data import Dataset
+import torch
+from torch.utils.data import Dataset, TensorDataset
+import matplotlib.pyplot as plt  # only needed for plotting
+from mpl_toolkits.axes_grid1 import ImageGrid  # only needed for plotting
 
+N_TRAIN_FILES = 5
+
+DEVICE = torch.accelerator.current_accelerator().type if torch.accelerator.is_available() else "cpu"
+RAW_DATA_PATH = Path("data") / "raw" / "corruptmnist" 
+PROCESSED_DATA_PATH = Path("data") / "processed" / "corruptmnist" 
 
 class MyDataset(Dataset):
     """My custom dataset."""
@@ -19,6 +26,59 @@ class MyDataset(Dataset):
     def preprocess(self, output_folder: Path) -> None:
         """Preprocess the raw data and save it to the output folder."""
 
+def corrupt_mnist(data_path: Path) -> tuple[torch.utils.data.Dataset, torch.utils.data.Dataset]:
+
+    train_images: torch.tensor = torch.load(f"{data_path}/train_images.pt")
+    train_target: torch.tensor = torch.load(f"{data_path}/train_target.pt")
+
+    test_images: torch.Tensor = torch.load(f"{data_path}/test_images.pt")
+    test_target: torch.Tensor = torch.load(f"{data_path}/test_target.pt")
+
+    train_set = torch.utils.data.TensorDataset(train_images, train_target)
+    test_set = torch.utils.data.TensorDataset(test_images, test_target)
+
+    return train_set, test_set
+
+def show_image_and_target(images: torch.Tensor, target: torch.Tensor) -> None:
+    """Plot images and their labels in a grid."""
+    row_col = int(len(images) ** 0.5)
+    fig = plt.figure(figsize=(10.0, 10.0))
+    grid = ImageGrid(fig, 111, nrows_ncols=(row_col, row_col), axes_pad=0.3)
+    for ax, im, label in zip(grid, images, target):
+        ax.imshow(im.squeeze(), cmap="gray")
+        ax.set_title(f"Label: {label.item()}")
+        ax.axis("off")
+    plt.show()
+
+def normalize(images: torch.Tensor) -> torch.Tensor:
+    dims = tuple(range(0, images.ndim)) # Wrong I guess. Should be over all images
+    train_normalized = images - images.mean(dims, keepdim=True)
+    train_normalized /= train_normalized.std(dims, keepdim=True)
+    return images
+
+def preprocess_mnist(data_path: Path, output_folder: Path) -> None:
+    print("Preprocessing data...")
+    train_images, train_target = [], []
+    for i in range(N_TRAIN_FILES + 1):
+        train_images.append(torch.load(f"{data_path}/train_images_{i}.pt"))
+        train_target.append(torch.load(f"{data_path}/train_target_{i}.pt"))
+    train_images = torch.cat(train_images)
+    train_target = torch.cat(train_target)
+
+    test_images: torch.Tensor = torch.load(f"{data_path}/test_images.pt")
+    test_target: torch.Tensor = torch.load(f"{data_path}/test_target.pt")
+
+    train_images = train_images.unsqueeze(1).float() ## add an extra dimension
+    test_images = test_images.unsqueeze(1).float()
+    train_target = train_target.long()
+    test_target = test_target.long()
+
+    output_folder.mkdir(exist_ok=True)
+    torch.save(normalize(train_images), f"{output_folder}/train_images.pt")
+    torch.save(train_target, f"{output_folder}/train_target.pt")
+    torch.save(normalize(test_images), f"{output_folder}/test_images.pt")
+    torch.save(test_target, f"{output_folder}/test_target.pt")
+
 def preprocess(data_path: Path, output_folder: Path) -> None:
     print("Preprocessing data...")
     dataset = MyDataset(data_path)
@@ -26,4 +86,13 @@ def preprocess(data_path: Path, output_folder: Path) -> None:
 
 
 if __name__ == "__main__":
-    typer.run(preprocess)
+    typer.run(preprocess_mnist)
+    data_path = Path("data/raw/corruptmnist")
+    output_folder = Path("data/processed/corruptmnist")
+    preprocess(data_path, output_folder)
+    train_set, test_set = corrupt_mnist(data_path)
+    print(f"Size of training set: {len(train_set)}")
+    print(f"Size of test set: {len(test_set)}")
+    print(f"Shape of a training point {(train_set[0][0].shape, train_set[0][1].shape)}")
+    print(f"Shape of a test point {(test_set[0][0].shape, test_set[0][1].shape)}")
+    show_image_and_target(train_set.tensors[0][:25], train_set.tensors[1][:25])

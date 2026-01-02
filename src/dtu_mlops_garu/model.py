@@ -2,7 +2,7 @@ from torch import nn
 import torch
 
 class Model(nn.Module):
-    def __init__(self, c1, out_features = 10):
+    def __init__(self, c1 = 128, out_features = 10):
         super().__init__()
         self.c1 = c1
         self.p = 0.5

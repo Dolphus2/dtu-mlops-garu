@@ -10,12 +10,17 @@ PYTHON_VERSION = "3.12"
 @task
 def preprocess_data(ctx: Context) -> None:
     """Preprocess data."""
-    ctx.run(f"uv run src/{PROJECT_NAME}/data.py data/raw data/processed", echo=True, pty=not WINDOWS)
+    ctx.run(f"uv run src/{PROJECT_NAME}/data.py data/raw/corruptmnist data/processed/corruptmnist", echo=True, pty=not WINDOWS)
 
 @task
 def train(ctx: Context) -> None:
     """Train model."""
     ctx.run(f"uv run src/{PROJECT_NAME}/train.py", echo=True, pty=not WINDOWS)
+
+@task
+def evaluate(ctx: Context) -> None:
+    """Train model."""
+    ctx.run(f"uv run src/{PROJECT_NAME}/evaluate.py models/model.pth", echo=True, pty=not WINDOWS)
 
 @task
 def test(ctx: Context) -> None:

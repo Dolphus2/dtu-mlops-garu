@@ -7,7 +7,7 @@ name = "dtu_mlops_garu"
 version = "0.0.1"
 description = "Personal repository for the DTU MLOPS course"
 authors = [
-  { name = "Gabriel Agerholm Ruge", email = "your@email.com" },
+  { name = "Gabriel Agerholm Ruge", email = "gabrielruge@gmail.com" },
 ]
 license = { file = "LICENSE" }
 keywords = ["machine learning", "MLOps"]
@@ -19,7 +19,11 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "fastapi==0.115.6",
-    "torch==2.6.0",
+    "invoke>=2.2.0",
+    "matplotlib>=3.10.8",
+    "numpy>=2.4.0",
+    "torch>=2.6.0",
+    "torchvision>=0.24.1",
     "typer==0.15.1",
     "uvicorn==0.34.0",
 ]
@@ -39,11 +43,16 @@ dev = [
 
 [tool.uv.sources]
 torch = [
-    { index = "pytorch-cpu" },
+    { index = "pytorch-cu130" },
 ]
 torchvision = [
-    { index = "pytorch-cpu" },
+    { index = "pytorch-cu130" },
 ]
+
+[[tool.uv.index]]
+name = "pytorch-cu130"
+url = "https://download.pytorch.org/whl/cu130"
+explicit = true
 
 [[tool.uv.index]]
 name = "pytorch-cpu"

@@ -1,31 +1,19 @@
+from pathlib import Path
+import numpy as np
+import matplotlib.pyplot as plt
 import torch
+from torch.utils.data.dataloader import DataLoader
 import typer
-# from data_solution import corrupt_mnist
-from model import Model
+import dtu_mlops_garu
+from dtu_mlops_garu.data import corrupt_mnist, preprocess_mnist
+from dtu_mlops_garu.model import Model
+from dtu_mlops_garu.utils import train_utils
+
+DEVICE = torch.accelerator.current_accelerator().type if torch.accelerator.is_available() else "cpu"
+RAW_DATA_PATH = Path("data") / "raw" / "corruptmnist" 
+PROCESSED_DATA_PATH = Path("data") / "processed" / "corruptmnist" 
 
 app = typer.Typer()
-
-
-@app.command()
-def train(lr: float = 1e-3) -> None:
-    """Train a model on MNIST."""
-    print("Training day and night")
-    print(lr)
-
-    # TODO: Implement training loop here
-    model = Model()
-    train_set, _ = corrupt_mnist()
-
-
-@app.command()
-def evaluate(model_checkpoint: str) -> None:
-    """Evaluate a trained model."""
-    print("Evaluating like my life depends on it")
-    print(model_checkpoint)
-
-    # TODO: Implement evaluation logic here
-    model = torch.load(model_checkpoint)
-    _, test_set = corrupt_mnist()
 
 
 if __name__ == "__main__":
