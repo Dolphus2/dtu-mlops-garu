@@ -20,7 +20,7 @@ def train(ctx: Context) -> None:
 @task
 def evaluate(ctx: Context) -> None:
     """Train model."""
-    ctx.run(f"uv run src/{PROJECT_NAME}/evaluate.py models/model.pth", echo=True, pty=not WINDOWS)
+    ctx.run(f"uv run src/{PROJECT_NAME}/evaluate.py", echo=True, pty=not WINDOWS)
 
 @task
 def test(ctx: Context) -> None:

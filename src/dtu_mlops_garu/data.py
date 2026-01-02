@@ -7,7 +7,6 @@ from mpl_toolkits.axes_grid1 import ImageGrid  # only needed for plotting
 
 N_TRAIN_FILES = 5
 
-DEVICE = torch.accelerator.current_accelerator().type if torch.accelerator.is_available() else "cpu"
 RAW_DATA_PATH = Path("data") / "raw" / "corruptmnist" 
 PROCESSED_DATA_PATH = Path("data") / "processed" / "corruptmnist" 
 
