@@ -7,7 +7,7 @@ from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 
 from dtu_mlops_garu.data import PROCESSED_DATA_PATH, corrupt_mnist
-from dtu_mlops_garu.model import Model1
+from dtu_mlops_garu.model import Model1, Model2
 
 DEVICE = torch.device("cpu")
 
@@ -18,7 +18,7 @@ def visualize(model_checkpoint: str, figure_name: str = "embeddings.png", batch_
     print("Evaluating like my life depends on it")
     print(f"Model checkpoint: {model_checkpoint}")
 
-    model = Model1(c1=128).to(DEVICE)
+    model = Model2().to(DEVICE)
     model.load_state_dict(torch.load(model_checkpoint))
     model.eval()
     # model.classifier = torch.nn.Identity

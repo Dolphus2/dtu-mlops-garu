@@ -16,7 +16,7 @@ def evaluate(model_checkpoint: str) -> None:
     print("Evaluating like my life depends on it")
     print(model_checkpoint)
 
-    model = Model1(c1 = 128).to(DEVICE)
+    model = Model2().to(DEVICE)
     model.load_state_dict(torch.load(model_checkpoint))
 
     _, test_set = corrupt_mnist(PROCESSED_DATA_PATH)
