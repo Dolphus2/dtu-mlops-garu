@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import torch
 import typer
 from dtu_mlops_garu.data import corrupt_mnist, preprocess_mnist, RAW_DATA_PATH, PROCESSED_DATA_PATH
-from dtu_mlops_garu.model import Model
+from dtu_mlops_garu.model import Model1, Model2
 from dtu_mlops_garu.utils import train_utils
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
@@ -17,7 +17,7 @@ def train(lr: float = 1e-3, batch_size: int = 64, epochs: int = 10) -> None:
         preprocess_mnist(RAW_DATA_PATH, PROCESSED_DATA_PATH)
         assert (PROCESSED_DATA_PATH / "train_images.pt").exists()
 
-    model = Model(c1 = 128).to(DEVICE)
+    model = Model1(c1 = 128).to(DEVICE)
     training_data, _ = corrupt_mnist(PROCESSED_DATA_PATH)
     train_dataloader = torch.utils.data.DataLoader(training_data, batch_size=batch_size, shuffle=True)
 

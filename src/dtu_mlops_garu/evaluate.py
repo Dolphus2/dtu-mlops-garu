@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import torch
 import typer
 from dtu_mlops_garu.data import corrupt_mnist, preprocess_mnist, RAW_DATA_PATH, PROCESSED_DATA_PATH
-from dtu_mlops_garu.model import Model
+from dtu_mlops_garu.model import Model1, Model2
 from dtu_mlops_garu.utils import train_utils
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
@@ -14,7 +14,7 @@ def evaluate(model_checkpoint: str) -> None:
     print("Evaluating like my life depends on it")
     print(model_checkpoint)
 
-    model = Model(c1 = 128).to(DEVICE)
+    model = Model1(c1 = 128).to(DEVICE)
     model.load_state_dict(torch.load(model_checkpoint))
 
     _, test_set = corrupt_mnist(PROCESSED_DATA_PATH)
