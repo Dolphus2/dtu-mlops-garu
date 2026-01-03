@@ -26,6 +26,7 @@ def imshow(image, ax=None, title=None, normalize=True):
 
     return ax
 
+
 def view_recon(img, recon) -> None:
     """Function for displaying an image (as a PyTorch Tensor) and its reconstruction also a PyTorch Tensor."""
     fig, axes = plt.subplots(ncols=2, sharex=True, sharey=True)

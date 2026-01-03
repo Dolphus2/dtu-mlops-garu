@@ -1,13 +1,12 @@
 from pathlib import Path
+
 import matplotlib.pyplot as plt
 import torch
-import numpy as np
-import typer
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 
-from dtu_mlops_garu.model import Model1, Model2
-from dtu_mlops_garu.data import corrupt_mnist, PROCESSED_DATA_PATH
+from dtu_mlops_garu.data import PROCESSED_DATA_PATH, corrupt_mnist
+from dtu_mlops_garu.model import Model1
 
 DEVICE = torch.device("cpu")
 
@@ -16,11 +15,11 @@ def visualize(model_checkpoint: str, figure_name: str = "embeddings.png", batch_
     print("Evaluating like my life depends on it")
     print(f"Model checkpoint: {model_checkpoint}")
 
-    model = Model1(c1 = 128).to(DEVICE)
+    model = Model1(c1=128).to(DEVICE)
     model.load_state_dict(torch.load(model_checkpoint))
     model.eval()
     # model.classifier = torch.nn.Identity
-    
+
     _, test_set = corrupt_mnist(PROCESSED_DATA_PATH)
     test_dataloader = torch.utils.data.DataLoader(test_set, batch_size=64)
 
@@ -48,6 +47,7 @@ def visualize(model_checkpoint: str, figure_name: str = "embeddings.png", batch_
         plt.scatter(embeddings[mask, 0], embeddings[mask, 1], label=str(i))
     plt.legend()
     plt.savefig(f"reports/figures/{figure_name}")
+
 
 if __name__ == "__main__":
     # typer.run(visualize)

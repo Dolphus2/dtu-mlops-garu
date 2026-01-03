@@ -1,9 +1,8 @@
-import numpy as np
 import torch
 
-def train_epoch(dataloader, model, criterion, optimizer, device, print_freq = 100):
+
+def train_epoch(dataloader, model, criterion, optimizer, device, print_freq=100):
     size = len(dataloader.dataset)
-    num_batches = len(dataloader)
     model.train()
 
     statistics = {"train_loss": [], "train_accuracy": []}
@@ -23,10 +22,14 @@ def train_epoch(dataloader, model, criterion, optimizer, device, print_freq = 10
         statistics["train_accuracy"].append(accuracy)
 
         if batch % print_freq == 0:
-            loss, current = loss.item(), (batch + 1) * len(X) # Because you start at zero and batches are counted in batches, not items, so multiply by X. 
+            loss, current = (
+                loss.item(),
+                (batch + 1) * len(X),
+            )  # Because you start at zero and batches are counted in batches, not items, so multiply by X.
             print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
 
     return statistics
+
 
 def test(dataloader, model, criterion, device):
     size = len(dataloader.dataset)
