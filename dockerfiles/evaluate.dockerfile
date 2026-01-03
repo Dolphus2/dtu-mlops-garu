@@ -16,4 +16,4 @@ WORKDIR /
 RUN --mount=type=cache,target=/root/.cache/pip pip install -r requirements.txt
 RUN pip install . --no-deps --no-cache-dir
 
-ENTRYPOINT ["python", "-u", "src/dtu_mlops_garu/train.py"]
+ENTRYPOINT ["python", "-u", "src/dtu_mlops_garu/evaluate.py", "models/trained_model.pth"]

@@ -34,5 +34,6 @@ def evaluate(model_checkpoint: str) -> None:
     print(f"Test accuracy: {correct / total}")
 
 if __name__ == "__main__":
-    model_checkpoint = Path("models/model.pth")
-    evaluate(model_checkpoint)
+    evaluate_app()
+    # model_checkpoint = Path("models/model.pth")
+    # evaluate(model_checkpoint)

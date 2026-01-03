@@ -44,6 +44,8 @@ def visualize(model_checkpoint: str, figure_name: str = "embeddings.png", batch_
     tsne = TSNE(n_components=2)
     embeddings = tsne.fit_transform(embeddings)
 
+    reports_dir = Path("reports/figures")
+    reports_dir.mkdir(parents=True, exist_ok=True)    
     plt.figure(figsize=(10, 10))
     for i in range(10):
         mask = targets == i

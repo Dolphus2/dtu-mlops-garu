@@ -1,4 +1,7 @@
+from pathlib import Path
 import typer
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import torch
 
@@ -11,7 +14,7 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.ba
 train_app = typer.Typer(help="Train commands")
 
 @train_app.command()
-def train(lr: float = 1e-3, batch_size: int = 64, epochs: int = 10) -> None:
+def train(model_path: str = "models/trained_model.pth", lr: float = 1e-3, batch_size: int = 64, epochs: int = 10) -> None:
     """Train a model on MNIST."""
     print("Training day and night")
     print(f"{lr=}, {batch_size=}, {epochs=}")  # OOOOH Cool!
@@ -35,15 +38,22 @@ def train(lr: float = 1e-3, batch_size: int = 64, epochs: int = 10) -> None:
         statistics["train_accuracy"] += epoch_statistics["train_accuracy"]
         statistics["train_loss"] += epoch_statistics["train_loss"]
 
-    torch.save(model.state_dict(), "models/model.pth")
-    print("Saved PyTorch Model State to models/model.pth")
+    model_path = Path(model_path)
+    model_path.parent.mkdir(parents=True, exist_ok=True)
+    torch.save(model.state_dict(), model_path)
+    print(f"Saved PyTorch Model State to {model_path}")
+
+    reports_dir = Path("reports") / "figures"
+    reports_dir.mkdir(parents=True, exist_ok=True)
+    reports_file = reports_dir / "training_statistics.png"
     fig, axs = plt.subplots(1, 2, figsize=(15, 5))
     axs[0].plot(statistics["train_loss"])
     axs[0].set_title("Train loss")
     axs[1].plot(statistics["train_accuracy"])
     axs[1].set_title("Train accuracy")
-    fig.savefig("reports/figures/training_statistics.png")
-
+    fig.savefig(reports_file)
+    plt.close(fig)
 
 if __name__ == "__main__":
-    train()
+    train_app() 
+

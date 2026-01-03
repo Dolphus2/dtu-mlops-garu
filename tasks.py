@@ -1,6 +1,6 @@
 import os
-
-from invoke import Context, task
+from pathlib import Path
+from invoke import Context, task, Collection
 
 WINDOWS = os.name == "nt"
 PROJECT_NAME = "dtu_mlops_garu"
@@ -11,7 +11,6 @@ def python(ctx: Context):
     """ """
     ctx.run(
         command = "which python" if os.name != "nt" else "where python",
-        warn = "Big warning",
         pty = not WINDOWS,
     )
 
@@ -27,15 +26,15 @@ def preprocess_data(ctx: Context) -> None:
 
 
 @task
-def train(ctx: Context) -> None:
+def train(ctx: Context, model_path: str = "models/trained_model.pth") -> None:
     """Train model."""
-    ctx.run(f"uv run src/{PROJECT_NAME}/train.py", echo=True, pty=not WINDOWS)
+    ctx.run(f"uv run src/{PROJECT_NAME}/train.py --model-path {model_path}", echo=True, pty=not WINDOWS)
 
 
 @task
-def evaluate(ctx: Context) -> None:
-    """Train model."""
-    ctx.run(f"uv run src/{PROJECT_NAME}/evaluate.py", echo=True, pty=not WINDOWS)
+def evaluate(ctx: Context, model_checkpoint: str) -> None:
+    """Evaluate model."""
+    ctx.run(f"uv run src/{PROJECT_NAME}/evaluate.py {model_checkpoint}", echo=True, pty=not WINDOWS)
 
 
 @task
@@ -54,9 +53,36 @@ def docker_build(ctx: Context, progress: str = "plain") -> None:
         pty=not WINDOWS,
     )
     ctx.run(
-        f"docker build -t api:latest . -f dockerfiles/api.dockerfile --progress={progress}", echo=True, pty=not WINDOWS
+        f"docker build -t evaluate:latest . -f dockerfiles/evaluate.dockerfile --progress={progress}",
+        echo=True,
+        pty=not WINDOWS,
+    )
+    # ctx.run(
+    #     f"docker build -t api:latest . -f dockerfiles/api.dockerfile --progress={progress}", echo=True, pty=not WINDOWS
+    # )
+
+@task
+def docker_run_train(ctx: Context, model_path: str = "models/trained_model.pt") -> None:
+    """Run the train image with an optional model path mounted."""
+    ctx.run(
+        f"docker run --rm -v {Path.cwd()}/models/{Path(model_path).name}:/models/{Path(model_path).name} train:latest --model-path {model_path}",
+        echo=True,
+        pty=not WINDOWS,
     )
 
+@task
+def docker_run_evaluate(ctx: Context, progress: str = "plain") -> None:
+    """Build docker images."""
+    ctx.run(
+        f"docker run --name evaluate --rm \
+            -v ${Path.cwd()}/models/trained_model.pt:/models/trained_model.pt \
+            -v ${Path.cwd()}/data/test_images.pt:/test_images.pt \
+            -v ${Path.cwd()}/data/test_targets.pt:/test_targets.pt \
+            evaluate:latest \
+            models/trained_model.pth",
+        echo=True,
+        pty=not WINDOWS,
+    )
 
 # Documentation commands
 @task
