@@ -1,3 +1,4 @@
+import typer
 import matplotlib.pyplot as plt
 import torch
 
@@ -7,7 +8,9 @@ from dtu_mlops_garu.utils import train_utils
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
 
+train_app = typer.Typer(help="Train commands")
 
+@train_app.command()
 def train(lr: float = 1e-3, batch_size: int = 64, epochs: int = 10) -> None:
     """Train a model on MNIST."""
     print("Training day and night")

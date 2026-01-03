@@ -27,8 +27,7 @@ dependencies = [
     "typer==0.15.1",
     "uvicorn==0.34.0",
 ]
-
-[dependency-groups]
+[project.optional-dependencies]
 dev = [
     "coverage==7.6.9",
     "invoke==2.2.0",
@@ -39,6 +38,19 @@ dev = [
     "ruff==0.1.3",
     "mkdocstrings-python==1.12.2",
 ]
+[dependency-groups] # Unclear to me what this does
+dev = [
+    "coverage==7.6.9",
+    "invoke==2.2.0",
+    "mkdocs-material==9.4.6",
+    "mkdocs==1.6.1",
+    "pre-commit==4.1.0",
+    "pytest==8.3.4",
+    "ruff==0.1.3",
+    "mkdocstrings-python==1.12.2",
+]
+[project.scripts]
+train = "dtu_mlops_garu.train:train_app"
 
 
 [tool.uv.sources]

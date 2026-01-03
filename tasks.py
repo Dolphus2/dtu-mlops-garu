@@ -6,6 +6,14 @@ WINDOWS = os.name == "nt"
 PROJECT_NAME = "dtu_mlops_garu"
 PYTHON_VERSION = "3.12"
 
+@task
+def python(ctx: Context):
+    """ """
+    ctx.run(
+        command = "which python" if os.name != "nt" else "where python",
+        warn = "Big warning",
+        pty = not WINDOWS,
+    )
 
 # Project commands
 @task

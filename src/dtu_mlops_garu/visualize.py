@@ -1,4 +1,5 @@
 from pathlib import Path
+import typer
 
 import matplotlib.pyplot as plt
 import torch
@@ -10,7 +11,9 @@ from dtu_mlops_garu.model import Model1
 
 DEVICE = torch.device("cpu")
 
+visualize_app = typer.Typer(help="visualize commands")
 
+@visualize_app.command()
 def visualize(model_checkpoint: str, figure_name: str = "embeddings.png", batch_size: int = 64) -> None:
     print("Evaluating like my life depends on it")
     print(f"Model checkpoint: {model_checkpoint}")
