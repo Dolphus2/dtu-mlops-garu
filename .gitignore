@@ -180,3 +180,4 @@ data/
 reports/figures/
 models/
 commands.txt
+wandb/
