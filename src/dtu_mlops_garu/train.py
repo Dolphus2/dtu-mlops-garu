@@ -26,7 +26,7 @@ train_app = typer.Typer(help="Train commands")
 def train(
     model_path: str = "models/trained_model.pth", 
     config_name: str = "train_config",
-    overrides: list[str] | None = None,
+    overrides: list[str] = typer.Option(None, "--overrides"),
 ) -> None:
     """Train a model on MNIST."""
     log.info("Training day and night")
@@ -68,25 +68,25 @@ def train(
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=momentum)
 
-    epoch_stats = {"train_loss": [], "train_accuracy": [], "precision": [], "recall": [], "f1": []}
+    stats = {"train_loss": [], "train_accuracy": [], "precision": [], "recall": [], "f1": []}
     for t in range(epochs):
-        print(f"Epoch {t+1}\n-------------------------------")
-        epoch_statistics = train_utils.train_epoch(train_dataloader, model, criterion, optimizer, DEVICE)
-        epoch_stats["train_accuracy"].append(epoch_statistics["train_accuracy"])
-        epoch_stats["train_loss"].append(epoch_statistics["train_loss"])
-        epoch_stats["precision"].append(epoch_statistics["precision"])
-        epoch_stats["recall"].append(epoch_statistics["recall"])
-        epoch_stats["f1"].append(epoch_statistics["f1"])
+        log.info(f"Epoch {t+1}\n-------------------------------")
+        epoch_stats = train_utils.train_epoch(train_dataloader, model, criterion, optimizer, DEVICE)
+        stats["train_accuracy"].append(epoch_stats["train_accuracy"])
+        stats["train_loss"].append(epoch_stats["train_loss"])
+        stats["precision"].append(epoch_stats["precision"])
+        stats["recall"].append(epoch_stats["recall"])
+        stats["f1"].append(epoch_stats["f1"])
 
-        avg_loss = np.mean(epoch_statistics["train_loss"])
-        avg_acc = np.mean(epoch_statistics["train_accuracy"])
+        avg_loss = np.mean(epoch_stats["train_loss"])
+        avg_acc = np.mean(epoch_stats["train_accuracy"])
         wandb.log({
             "epoch": t + 1,
             "train_loss": avg_loss,
             "train_accuracy": avg_acc,
-            "precision": epoch_statistics["precision"],
-            "recall": epoch_statistics["recall"],
-            "f1": epoch_statistics["f1"]
+            "precision": epoch_stats["precision"],
+            "recall": epoch_stats["recall"],
+            "f1": epoch_stats["f1"]
         })
 
     model_path = Path(model_path)
@@ -102,10 +102,10 @@ def train(
         type="model",
         description="A model trained to classify corrupt MNIST images",
         metadata={
-            "accuracy": epoch_stats["train_accuracy"][-1],
-            "precision": epoch_stats["precision"][-1],
-            "recall": epoch_stats["recall"][-1],
-            "f1": epoch_stats["f1"][-1]
+            "accuracy": stats["train_accuracy"][-1],
+            "precision": stats["precision"][-1],
+            "recall": stats["recall"][-1],
+            "f1": stats["f1"][-1]
         },
     )
     artifact.add_file(model_path)
@@ -115,9 +115,9 @@ def train(
     reports_dir.mkdir(parents=True, exist_ok=True)
     reports_file = reports_dir / "training_statistics.png"
     fig, axs = plt.subplots(1, 2, figsize=(15, 5))
-    axs[0].plot(epoch_stats["train_loss"])
+    axs[0].plot(stats["train_loss"])
     axs[0].set_title("Train loss")
-    axs[1].plot(epoch_stats["train_accuracy"])
+    axs[1].plot(stats["train_accuracy"])
     axs[1].set_title("Train accuracy")
     fig.savefig(reports_file)
     wandb.log({"training_plots": wandb.Image(fig)})

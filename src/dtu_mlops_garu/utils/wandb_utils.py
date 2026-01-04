@@ -23,6 +23,7 @@ def log_ROC(targets, preds):
             preds[:, class_id],
             name=f"ROC curve for {class_id}",
             plot_chance_level=(class_id == 2),
+            ax = ax,
         )
 
     ax.set_title("ROC Curves for All Classes")

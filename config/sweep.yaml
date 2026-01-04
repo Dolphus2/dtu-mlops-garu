@@ -1,0 +1,22 @@
+program: src/dtu_mlops_garu/train.py
+name: sweepdemo
+method: bayes
+project: dtu_mlops_garu
+entity: gabrielruge-technical-university-of-denmark
+metric:
+  goal: minimize
+  name: train_loss # Change eventually
+parameters:
+  lr:
+    min: 0.0001
+    max: 0.1
+    distribution: log_uniform_values
+  batch_size:
+    values: [16, 32, 64]
+  epochs:
+      values: [5, 10, 15]
+command:
+  - ${env}
+  - python
+  - ${program}
+run_cap: 10
