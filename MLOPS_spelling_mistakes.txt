@@ -1,0 +1,6 @@
+Found spelling mistakes.
+
+
+M15 code 
+
+# traier.fit(model)

@@ -1,7 +1,7 @@
 from pathlib import Path
 import typer
 import torch
-from torch.utils.data import Dataset, TensorDataset
+from torch.utils.data import Dataset, TensorDataset, DataLoader
 import matplotlib.pyplot as plt  # only needed for plotting
 from mpl_toolkits.axes_grid1 import ImageGrid  # only needed for plotting
 
@@ -60,6 +60,12 @@ def corrupt_mnist(data_path: Path) -> tuple[torch.utils.data.Dataset, torch.util
     test_set = torch.utils.data.TensorDataset(test_images, test_target)
 
     return train_set, test_set
+
+def get_dataloaders(data_path: Path, batch_size: int) -> tuple[torch.utils.data.DataLoader, torch.utils.data.DataLoader]:
+    training_data, test_set = corrupt_mnist(data_path)
+    train_dataloader = DataLoader(training_data, batch_size=batch_size, shuffle=True)
+    test_dataloader = torch.utils.data.DataLoader(test_set, batch_size=batch_size)
+    return train_dataloader, test_dataloader
 
 def show_image_and_target(images: torch.Tensor, target: torch.Tensor) -> None:
     """Plot images and their labels in a grid."""
