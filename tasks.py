@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
-from invoke import Context, task, Collection
+
+from invoke import Context, task
 
 WINDOWS = os.name == "nt"
 PROJECT_NAME = "dtu_mlops_garu"
@@ -29,8 +30,8 @@ def preprocess_data(ctx: Context) -> None:
 def train(ctx: Context, model_path: str = "models/trained_model.pth", extra_args: str = "") -> None:
     """Train model."""
     extra = f" {extra_args}" if extra_args else ""
-    ctx.run(f"uv run src/{PROJECT_NAME}/train.py --model-path {model_path}{extra}", 
-        echo=True, 
+    ctx.run(f"uv run src/{PROJECT_NAME}/train.py --model-path {model_path}{extra}",
+        echo=True,
         pty=not WINDOWS
     )
 

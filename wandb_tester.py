@@ -2,6 +2,7 @@
 # dependencies = ["wandb"]
 # /// Only works because of uv. Wow.
 import random
+
 import wandb
 
 wandb.init(project="wandb-test")

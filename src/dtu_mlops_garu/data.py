@@ -1,14 +1,15 @@
 from pathlib import Path
-import typer
-import torch
-from torch.utils.data import Dataset, TensorDataset, DataLoader
+
 import matplotlib.pyplot as plt  # only needed for plotting
+import torch
+import typer
 from mpl_toolkits.axes_grid1 import ImageGrid  # only needed for plotting
+from torch.utils.data import DataLoader, Dataset
 
 N_TRAIN_FILES = 5
 
-RAW_DATA_PATH = Path("data") / "raw" / "corruptmnist" 
-PROCESSED_DATA_PATH = Path("data") / "processed" / "corruptmnist" 
+RAW_DATA_PATH = Path("data") / "raw" / "corruptmnist"
+PROCESSED_DATA_PATH = Path("data") / "processed" / "corruptmnist"
 
 data_app = typer.Typer(help="Data commands")
 
@@ -27,6 +28,7 @@ class MyDataset(Dataset):
 
     def preprocess(self, output_folder: Path) -> None:
         """Preprocess the raw data and save it to the output folder."""
+
 
 @data_app.command()
 def corrupt_mnist(data_path: Path) -> tuple[torch.utils.data.Dataset, torch.utils.data.Dataset]:
@@ -47,9 +49,8 @@ def corrupt_mnist(data_path: Path) -> tuple[torch.utils.data.Dataset, torch.util
     tuple[TensorDataset, TensorDataset]
         (train_set, test_set) where each is a torch.utils.data.TensorDataset that
         yields (image, label) pairs suitable for use with torch DataLoader.
+
     """
-
-
     train_images: torch.tensor = torch.load(f"{data_path}/train_images.pt")
     train_target: torch.tensor = torch.load(f"{data_path}/train_target.pt")
 
@@ -61,11 +62,15 @@ def corrupt_mnist(data_path: Path) -> tuple[torch.utils.data.Dataset, torch.util
 
     return train_set, test_set
 
-def get_dataloaders(data_path: Path, batch_size: int) -> tuple[torch.utils.data.DataLoader, torch.utils.data.DataLoader]:
+
+def get_dataloaders(
+    data_path: Path, batch_size: int
+) -> tuple[torch.utils.data.DataLoader, torch.utils.data.DataLoader]:
     training_data, test_set = corrupt_mnist(data_path)
     train_dataloader = DataLoader(training_data, batch_size=batch_size, shuffle=True)
     test_dataloader = torch.utils.data.DataLoader(test_set, batch_size=batch_size)
     return train_dataloader, test_dataloader
+
 
 def show_image_and_target(images: torch.Tensor, target: torch.Tensor) -> None:
     """Plot images and their labels in a grid."""
@@ -78,11 +83,13 @@ def show_image_and_target(images: torch.Tensor, target: torch.Tensor) -> None:
         ax.axis("off")
     plt.show()
 
+
 def normalize(images: torch.Tensor) -> torch.Tensor:
-    dims = tuple(range(0, images.ndim)) # Wrong I guess. Should be over all images
+    dims = tuple(range(images.ndim))  # Wrong I guess. Should be over all images
     train_normalized = images - images.mean(dims, keepdim=True)
     train_normalized /= train_normalized.std(dims, keepdim=True)
     return images
+
 
 @data_app.command()
 def preprocess_mnist(src: Path, dst: Path) -> None:
@@ -98,7 +105,7 @@ def preprocess_mnist(src: Path, dst: Path) -> None:
     test_images: torch.Tensor = torch.load(f"{src}/test_images.pt")
     test_target: torch.Tensor = torch.load(f"{src}/test_target.pt")
 
-    train_images = train_images.unsqueeze(1).float() ## add an extra dimension
+    train_images = train_images.unsqueeze(1).float()  ## add an extra dimension
     test_images = test_images.unsqueeze(1).float()
     train_target = train_target.long()
     test_target = test_target.long()
@@ -109,6 +116,7 @@ def preprocess_mnist(src: Path, dst: Path) -> None:
     torch.save(normalize(test_images), f"{dst}/test_images.pt")
     torch.save(test_target, f"{dst}/test_target.pt")
     typer.echo(f"preprocess {src} -> {dst}")
+
 
 def preprocess(data_path: Path, output_folder: Path) -> None:
     print("Preprocessing data...")

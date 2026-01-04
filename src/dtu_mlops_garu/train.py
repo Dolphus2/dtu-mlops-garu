@@ -1,19 +1,21 @@
-from pathlib import Path
-import time
-import typer
 import logging
-import wandb
-from omegaconf import DictConfig, OmegaConf
+import time
+from pathlib import Path
+
+import matplotlib
+import numpy as np
+import typer
 from hydra import compose, initialize
 from hydra.utils import instantiate
-import numpy as np
-import matplotlib
+from omegaconf import DictConfig, OmegaConf
+
+import wandb
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import torch
 
 from dtu_mlops_garu.data import PROCESSED_DATA_PATH, RAW_DATA_PATH, corrupt_mnist, preprocess_mnist
-from dtu_mlops_garu.model import Model1, Model2
 from dtu_mlops_garu.utils import train_utils
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
@@ -22,9 +24,10 @@ logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
 train_app = typer.Typer(help="Train commands")
 
+
 @train_app.command()
 def train(
-    model_path: str = "models/trained_model.pth", 
+    model_path: str = "models/trained_model.pth",
     config_name: str = "train_config",
     overrides: list[str] = typer.Option(None, "--overrides"),
 ) -> None:
@@ -40,7 +43,7 @@ def train(
     run = wandb.init(
         project="dtu_mlops_garu",
         name=f"dtu_mlops_garu_corrupt_mnist_{int(time.time())}",
-        config=OmegaConf.to_container(cfg, resolve=True)
+        config=OmegaConf.to_container(cfg, resolve=True),
     )
 
     # Use config values
@@ -59,7 +62,7 @@ def train(
         assert (PROCESSED_DATA_PATH / "train_images.pt").exists()
 
     # Instantiate model from config using Hydra's instantiate
-    model = instantiate(cfg.model).to(DEVICE) # Very cool
+    model = instantiate(cfg.model).to(DEVICE)  # Very cool
     log.info(f"Loaded model: {cfg.model._target_}")
 
     training_data, _ = corrupt_mnist(PROCESSED_DATA_PATH)
@@ -70,7 +73,7 @@ def train(
 
     stats = {"train_loss": [], "train_accuracy": [], "precision": [], "recall": [], "f1": []}
     for t in range(epochs):
-        log.info(f"Epoch {t+1}\n-------------------------------")
+        log.info(f"Epoch {t + 1}\n-------------------------------")
         epoch_stats = train_utils.train_epoch(train_dataloader, model, criterion, optimizer, DEVICE)
         stats["train_accuracy"].append(epoch_stats["train_accuracy"])
         stats["train_loss"].append(epoch_stats["train_loss"])
@@ -80,21 +83,23 @@ def train(
 
         avg_loss = np.mean(epoch_stats["train_loss"])
         avg_acc = np.mean(epoch_stats["train_accuracy"])
-        wandb.log({
-            "epoch": t + 1,
-            "train_loss": avg_loss,
-            "train_accuracy": avg_acc,
-            "precision": epoch_stats["precision"],
-            "recall": epoch_stats["recall"],
-            "f1": epoch_stats["f1"]
-        })
+        wandb.log(
+            {
+                "epoch": t + 1,
+                "train_loss": avg_loss,
+                "train_accuracy": avg_acc,
+                "precision": epoch_stats["precision"],
+                "recall": epoch_stats["recall"],
+                "f1": epoch_stats["f1"],
+            }
+        )
 
     model_path = Path(model_path)
     model_path.parent.mkdir(parents=True, exist_ok=True)
     torch.save(model.state_dict(), model_path)
     log.info(f"Saved PyTorch Model State to {model_path}")
     wandb.log_model(path=model_path, name="corruptmnist_model")
-    log.info(f"Logged model to wandb")
+    log.info("Logged model to wandb")
 
     # first we save the model to a file then log it as an artifact
     artifact = wandb.Artifact(
@@ -105,7 +110,7 @@ def train(
             "accuracy": stats["train_accuracy"][-1],
             "precision": stats["precision"][-1],
             "recall": stats["recall"][-1],
-            "f1": stats["f1"][-1]
+            "f1": stats["f1"][-1],
         },
     )
     artifact.add_file(model_path)
@@ -125,6 +130,6 @@ def train(
 
     wandb.finish()
 
-if __name__ == "__main__":
-    train_app() 
 
+if __name__ == "__main__":
+    train_app()

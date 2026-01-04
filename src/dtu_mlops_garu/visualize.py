@@ -1,21 +1,23 @@
-from pathlib import Path
-import typer
 import logging
+from pathlib import Path
+
 import matplotlib.pyplot as plt
 import torch
+import typer
+from hydra import compose, initialize
+from omegaconf import DictConfig, OmegaConf
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
-from omegaconf import DictConfig, OmegaConf
-from hydra import compose, initialize
 
-from dtu_mlops_garu.utils.load_utils import find_model_path
 from dtu_mlops_garu.data import PROCESSED_DATA_PATH, corrupt_mnist
-from dtu_mlops_garu.model import Model1, Model2
+from dtu_mlops_garu.model import Model2
+from dtu_mlops_garu.utils.load_utils import find_model_path
 
 DEVICE = torch.device("cpu")
 
 log = logging.getLogger(__name__)
 visualize_app = typer.Typer(help="visualize commands")
+
 
 @visualize_app.command()
 def visualize(
@@ -63,7 +65,7 @@ def visualize(
     embeddings = tsne.fit_transform(embeddings)
 
     reports_dir = Path("reports/figures")
-    reports_dir.mkdir(parents=True, exist_ok=True)    
+    reports_dir.mkdir(parents=True, exist_ok=True)
     plt.figure(figsize=(10, 10))
     for i in range(10):
         mask = targets == i

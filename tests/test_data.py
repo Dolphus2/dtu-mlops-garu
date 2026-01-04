@@ -1,5 +1,6 @@
-from dtu_mlops_garu.data import MyDataset
 from torch.utils.data import Dataset
+
+from dtu_mlops_garu.data import MyDataset
 
 
 def test_my_dataset():
