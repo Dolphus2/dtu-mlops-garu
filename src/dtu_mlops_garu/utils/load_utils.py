@@ -1,6 +1,6 @@
 from pathlib import Path
 
-def find_model_path(model_checkpoint: str) -> None:
+def find_model_path(model_checkpoint: str) -> str:
     p = Path(model_checkpoint)
     if not p.exists():
         p_alt = Path("/") / model_checkpoint.lstrip("/")

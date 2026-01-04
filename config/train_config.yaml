@@ -1,0 +1,16 @@
+defaults:
+  - _self_
+  - dataset: mnist
+  - model: model2
+
+path:
+  model_path: "models/trained_model.pth"
+hyperparameters:
+  seed: 42
+  epochs: 10
+  batch_size: 64
+  lr: 1e-3
+  momentum: 0.9
+logging:
+  print_freq: 100
+

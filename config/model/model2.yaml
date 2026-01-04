@@ -1,0 +1,3 @@
+
+_target_: dtu_mlops_garu.model.Model2
+dropout: 0.5

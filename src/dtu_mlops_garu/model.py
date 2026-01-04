@@ -41,12 +41,13 @@ class Model1(nn.Module):
     
 class Model2(nn.Module):
 
-    def __init__(self) -> None:
+    def __init__(self, dropout: float) -> None:
         super().__init__()
+        self.p = dropout
         self.conv1 = nn.Conv2d(1, 32, 3, 1)
         self.conv2 = nn.Conv2d(32, 64, 3, 1)
         self.conv3 = nn.Conv2d(64, 128, 3, 1)
-        self.dropout = nn.Dropout(0.5)
+        self.dropout = nn.Dropout(self.p)
         self.fc1 = nn.Linear(128, 10)
     
     def backbone(self, x: torch.Tensor) -> torch.Tensor:
