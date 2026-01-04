@@ -19,6 +19,7 @@ def train(model_path: str = "models/trained_model.pth", lr: float = 1e-3, batch_
     print("Training day and night")
     print(f"{lr=}, {batch_size=}, {epochs=}")  # OOOOH Cool!
     print(f"Using {DEVICE} device")
+    print(torch.cuda.is_available())
 
     if not (PROCESSED_DATA_PATH / "train_images.pt").exists():
         preprocess_mnist(RAW_DATA_PATH, PROCESSED_DATA_PATH)

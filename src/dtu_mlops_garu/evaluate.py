@@ -5,6 +5,7 @@ import typer
 from dtu_mlops_garu.data import corrupt_mnist, PROCESSED_DATA_PATH
 from dtu_mlops_garu.model import Model1, Model2
 from dtu_mlops_garu.utils import train_utils
+from dtu_mlops_garu.utils.load_utils import find_model_path
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
 
@@ -14,10 +15,12 @@ evaluate_app = typer.Typer(help="Evaluate commands")
 def evaluate(model_checkpoint: str) -> None:
     """Evaluate a trained model."""
     print("Evaluating like my life depends on it")
-    print(model_checkpoint)
+    print(f"{model_checkpoint=}")
+    model_checkpoint = find_model_path(model_checkpoint)
+    print(f"{Path.cwd()=}")
 
     model = Model2().to(DEVICE)
-    model.load_state_dict(torch.load(model_checkpoint))
+    model.load_state_dict(torch.load(model_checkpoint, map_location=DEVICE))
 
     _, test_set = corrupt_mnist(PROCESSED_DATA_PATH)
     test_dataloader = torch.utils.data.DataLoader(test_set, batch_size=64)

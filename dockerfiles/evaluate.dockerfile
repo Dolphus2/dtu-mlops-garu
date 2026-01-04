@@ -1,19 +1,28 @@
-# Base image
-FROM python:3.12-slim
+# FROM ghcr.io/astral-sh/uv:python3.12-bookworm AS base
 
-# Install Python
-RUN apt update && \
-    apt install --no-install-recommends -y build-essential gcc && \
-    apt clean && rm -rf /var/lib/apt/lists/*
+FROM nvcr.io/nvidia/pytorch:25.08-py3
 
-COPY requirements.txt requirements.txt
+WORKDIR /app
+
+COPY uv.lock uv.lock
 COPY pyproject.toml pyproject.toml
+
 COPY src/ src/
 COPY data/ data/
 
-# Working directory is base directory
-WORKDIR / 
-RUN --mount=type=cache,target=/root/.cache/pip pip install -r requirements.txt
-RUN pip install . --no-deps --no-cache-dir
+COPY dockerfiles/eval_entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
 
-ENTRYPOINT ["python", "-u", "src/dtu_mlops_garu/evaluate.py", "models/trained_model.pth"]
+# Install dependencies only (persists across Docker builds)
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-install-project
+
+# Install the project itself
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen
+
+# ENTRYPOINT ["uv", "run", "src/dtu_mlops_garu/evaluate.py", "models/trained_model.pth"]
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+# optional: default args (can be overridden by `docker run`)
+CMD []

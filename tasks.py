@@ -45,7 +45,7 @@ def test(ctx: Context) -> None:
 
 
 @task
-def docker_build(ctx: Context, progress: str = "plain") -> None:
+def docker_build(ctx: Context, progress: str = "auto") -> None:
     """Build docker images."""
     ctx.run(
         f"docker build -t train:latest . -f dockerfiles/train.dockerfile --progress={progress}",
@@ -62,22 +62,24 @@ def docker_build(ctx: Context, progress: str = "plain") -> None:
     # )
 
 @task
-def docker_run_train(ctx: Context, model_path: str = "models/trained_model.pt") -> None:
+def docker_run_train(ctx: Context, model_path: str = "models/trained_model.pth") -> None:
     """Run the train image with an optional model path mounted."""
     ctx.run(
-        f"docker run --rm -v {Path.cwd()}/models/{Path(model_path).name}:/models/{Path(model_path).name} train:latest --model-path {model_path}",
+        f"docker run --name train --rm -v {Path.cwd()}/models/{Path(model_path).name}:/app/models/{Path(model_path).name} train:latest --model-path {model_path}",
         echo=True,
         pty=not WINDOWS,
     )
 
 @task
-def docker_run_evaluate(ctx: Context, progress: str = "plain") -> None:
-    """Build docker images."""
+def docker_run_evaluate(ctx: Context) -> None:
+    """Run the evaluate image using a mounted model"""
+    host = Path.cwd()
     ctx.run(
         f"docker run --name evaluate --rm \
-            -v ${Path.cwd()}/models/trained_model.pt:/models/trained_model.pt \
-            -v ${Path.cwd()}/data/test_images.pt:/test_images.pt \
-            -v ${Path.cwd()}/data/test_targets.pt:/test_targets.pt \
+            -v {host}/models/trained_model.pth:/app/models/trained_model.pth \
+            -v {host}/data/test_images.pt:/app/test_images.pt \
+            -v {host}/data/test_targets.pt:/app/test_targets.pt \
+            -v {host}/reports/figures:/app/reports/figures\
             evaluate:latest \
             models/trained_model.pth",
         echo=True,

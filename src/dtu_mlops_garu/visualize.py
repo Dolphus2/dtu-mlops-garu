@@ -6,6 +6,7 @@ import torch
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 
+from dtu_mlops_garu.utils.load_utils import find_model_path
 from dtu_mlops_garu.data import PROCESSED_DATA_PATH, corrupt_mnist
 from dtu_mlops_garu.model import Model1, Model2
 
@@ -15,11 +16,12 @@ visualize_app = typer.Typer(help="visualize commands")
 
 @visualize_app.command()
 def visualize(model_checkpoint: str, figure_name: str = "embeddings.png", batch_size: int = 64) -> None:
-    print("Evaluating like my life depends on it")
+    print("Visualizing like my life depends on it")
     print(f"Model checkpoint: {model_checkpoint}")
+    model_checkpoint = find_model_path(model_checkpoint)
 
     model = Model2().to(DEVICE)
-    model.load_state_dict(torch.load(model_checkpoint))
+    model.load_state_dict(torch.load(model_checkpoint, map_location=DEVICE))
     model.eval()
     # model.classifier = torch.nn.Identity
 
@@ -55,6 +57,7 @@ def visualize(model_checkpoint: str, figure_name: str = "embeddings.png", batch_
 
 
 if __name__ == "__main__":
+    visualize_app()
     # typer.run(visualize)
-    model_checkpoint = Path("models/model.pth")
-    visualize(model_checkpoint)
+    # model_checkpoint = Path("models/trained_model.pth")
+    # visualize(model_checkpoint)

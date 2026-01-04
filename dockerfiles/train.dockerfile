@@ -1,19 +1,23 @@
 FROM ghcr.io/astral-sh/uv:python3.12-bookworm AS base
 # FROM python:3.12-slim
+# FROM pytorch/pytorch:2.6.0-cuda13.0-cudnn9-runtime # Small official pytorch image
+# FROM nvcr.io/nvidia/pytorch:25.08-py3 # Big official nvidia image with lots of libraries
+
+
+WORKDIR /app
 
 COPY uv.lock uv.lock
 COPY pyproject.toml pyproject.toml
 
-# Cache uv downloads and builds (persists across Docker builds)
+COPY src/ src/
+COPY data/ data/
+
+# Install dependencies only (persists across Docker builds)
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-install-project
 
-COPY src/ data/ ./
-
-# Cache mount again for the final sync (installing your project)
+# Install the project itself
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen
-
-WORKDIR /app
 
 ENTRYPOINT ["uv", "run", "src/dtu_mlops_garu/train.py"]
