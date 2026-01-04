@@ -62,20 +62,23 @@ def docker_build(ctx: Context, progress: str = "auto") -> None:
     # )
 
 @task
-def docker_run_train(ctx: Context, model_path: str = "models/trained_model.pth") -> None:
+def docker_run_train(ctx: Context, model_path: str = "models/trained_model.pth", gpus = True) -> None:
     """Run the train image with an optional model path mounted."""
+    gpus_str = "--gpus all " if gpus else ""
     ctx.run(
-        f"docker run --name train --rm -v {Path.cwd()}/models/{Path(model_path).name}:/app/models/{Path(model_path).name} train:latest --model-path {model_path}",
+        f"docker run {gpus_str}\
+        --name train --rm -v {Path.cwd()}/models/{Path(model_path).name}:/app/models/{Path(model_path).name} train:latest --model-path {model_path}",
         echo=True,
         pty=not WINDOWS,
     )
 
 @task
-def docker_run_evaluate(ctx: Context) -> None:
+def docker_run_evaluate(ctx: Context, gpus = True) -> None:
     """Run the evaluate image using a mounted model"""
     host = Path.cwd()
+    gpus_str = "--gpus all " if gpus else ""
     ctx.run(
-        f"docker run --name evaluate --rm \
+        f"docker run {gpus_str}--name evaluate --rm \
             -v {host}/models/trained_model.pth:/app/models/trained_model.pth \
             -v {host}/data/test_images.pt:/app/test_images.pt \
             -v {host}/data/test_targets.pt:/app/test_targets.pt \
