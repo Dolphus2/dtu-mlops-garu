@@ -19,6 +19,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "fastapi==0.115.6",
+    "gdown>=5.2.0",
     "hydra-core>=1.3.2",
     "invoke>=2.2.0",
     "matplotlib>=3.10.8",
@@ -26,8 +27,8 @@ dependencies = [
     "omegaconf>=2.3.0",
     "pytorch-lightning>=2.6.0",
     "scikit-learn>=1.8.0",
-    "torch>=2.6.0",
-    "torchvision>=0.24.1",
+    "torch>=2.5.0",
+    "torchvision>=0.20.0",
     "typer==0.21.0",
     "uvicorn==0.34.0",
     "wandb>=0.23.1",
@@ -60,10 +61,15 @@ train = "dtu_mlops_garu.train:train_app"
 
 [tool.uv.sources]
 torch = [
-    { index = "pytorch-cu130" },
+    { index = "pytorch-cpu" },
 ]
 torchvision = [
-    { index = "pytorch-cu130" },
+    { index = "pytorch-cpu" },
+]
+
+[tool.uv]
+required-environments = [
+    "sys_platform == 'linux' and platform_machine == 'x86_64'",
 ]
 
 [[tool.uv.index]]

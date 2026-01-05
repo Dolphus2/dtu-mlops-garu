@@ -1,4 +1,6 @@
 from pathlib import Path
+import logging
+import subprocess
 
 import matplotlib.pyplot as plt  # only needed for plotting
 import torch
@@ -11,6 +13,7 @@ N_TRAIN_FILES = 5
 RAW_DATA_PATH = Path("data") / "raw" / "corruptmnist"
 PROCESSED_DATA_PATH = Path("data") / "processed" / "corruptmnist"
 
+log = logging.getLogger(__name__)
 data_app = typer.Typer(help="Data commands")
 
 
@@ -30,8 +33,51 @@ class MyDataset(Dataset):
         """Preprocess the raw data and save it to the output folder."""
 
 
+def _download_corrupt_mnist(output_dir: Path = RAW_DATA_PATH) -> None:
+    """Download the CorruptMNIST dataset from Google Drive using gdown.
+    
+    Parameters
+    ----------
+    output_dir : Path
+        Directory where the raw dataset will be downloaded. Defaults to RAW_DATA_PATH.
+    
+    """
+    try:
+        subprocess.run(["uv", "add", "gdown"], check=True)
+        output_dir.mkdir(parents=True, exist_ok=True)
+        subprocess.run(
+            [
+                "uv", "run", "gdown", "--folder",
+                "https://drive.google.com/drive/folders/1ddWeCcsfmelqxF8sOGBihY9IU98S9JRP?usp=sharing",
+                "-O", str(output_dir)
+            ],
+            check=True
+        )
+        log.info(f"Dataset downloaded successfully to {output_dir}")
+    except subprocess.CalledProcessError as e:
+        log.error(f"Error downloading dataset: {e}")
+        raise
+
+
+def prepare_corrupt_mnist(
+    raw_data_path: Path = RAW_DATA_PATH,
+    processed_data_path: Path = PROCESSED_DATA_PATH
+) -> None:
+    """Prepare CorruptMNIST dataset by downloading and preprocessing if needed."""
+    if not (processed_data_path / "train_images.pt").is_file():
+        if not (raw_data_path / "train_images_0.pt").is_file():
+            _download_corrupt_mnist(raw_data_path)
+        preprocess_mnist(raw_data_path, processed_data_path)
+    else:
+        log.info("Processed dataset already present")
+    
+
+
 @data_app.command()
-def corrupt_mnist(data_path: Path) -> tuple[torch.utils.data.Dataset, torch.utils.data.Dataset]:
+def get_corrupt_mnist(
+    data_path: Path = PROCESSED_DATA_PATH, 
+    raw_data_path: Path = RAW_DATA_PATH
+) -> tuple[torch.utils.data.Dataset, torch.utils.data.Dataset]:
     """
     Load processed CorruptMNIST tensors from disk and return PyTorch datasets.
 
@@ -51,11 +97,17 @@ def corrupt_mnist(data_path: Path) -> tuple[torch.utils.data.Dataset, torch.util
         yields (image, label) pairs suitable for use with torch DataLoader.
 
     """
-    train_images: torch.tensor = torch.load(f"{data_path}/train_images.pt")
-    train_target: torch.tensor = torch.load(f"{data_path}/train_target.pt")
+    if not data_path.exists() or not (data_path / "train_images.pt").is_file():
+        if not raw_data_path.exists() or not (raw_data_path / "train_images.pt").is_file():
+            _download_corrupt_mnist(raw_data_path)
+        preprocess_mnist(raw_data_path, data_path)
+    assert(data_path.exists() and (data_path / "train_images.pt").is_file())
 
-    test_images: torch.Tensor = torch.load(f"{data_path}/test_images.pt")
-    test_target: torch.Tensor = torch.load(f"{data_path}/test_target.pt")
+    train_images: torch.tensor = torch.load(f"{data_path}/train_images.pt", weights_only=True)
+    train_target: torch.tensor = torch.load(f"{data_path}/train_target.pt", weights_only=True)
+
+    test_images: torch.Tensor = torch.load(f"{data_path}/test_images.pt", weights_only=True)
+    test_target: torch.Tensor = torch.load(f"{data_path}/test_target.pt", weights_only=True)
 
     train_set = torch.utils.data.TensorDataset(train_images, train_target)
     test_set = torch.utils.data.TensorDataset(test_images, test_target)
@@ -66,7 +118,7 @@ def corrupt_mnist(data_path: Path) -> tuple[torch.utils.data.Dataset, torch.util
 def get_dataloaders(
     data_path: Path, batch_size: int
 ) -> tuple[torch.utils.data.DataLoader, torch.utils.data.DataLoader]:
-    training_data, test_set = corrupt_mnist(data_path)
+    training_data, test_set = get_corrupt_mnist(data_path)
     train_dataloader = DataLoader(training_data, batch_size=batch_size, shuffle=True)
     test_dataloader = torch.utils.data.DataLoader(test_set, batch_size=batch_size)
     return train_dataloader, test_dataloader
@@ -93,8 +145,8 @@ def normalize(images: torch.Tensor) -> torch.Tensor:
 
 @data_app.command()
 def preprocess_mnist(src: Path, dst: Path) -> None:
-    """Preprocess data from data_path to DST."""
-    print("Preprocessing data...")
+    """Preprocess data from src to DST."""
+    log.info("Preprocessing data...")
     train_images, train_target = [], []
     for i in range(N_TRAIN_FILES + 1):
         train_images.append(torch.load(f"{src}/train_images_{i}.pt"))
@@ -110,7 +162,7 @@ def preprocess_mnist(src: Path, dst: Path) -> None:
     train_target = train_target.long()
     test_target = test_target.long()
 
-    dst.mkdir(exist_ok=True)
+    dst.mkdir(exist_ok=True, parents=True)
     torch.save(normalize(train_images), f"{dst}/train_images.pt")
     torch.save(train_target, f"{dst}/train_target.pt")
     torch.save(normalize(test_images), f"{dst}/test_images.pt")
@@ -125,11 +177,9 @@ def preprocess(data_path: Path, output_folder: Path) -> None:
 
 
 if __name__ == "__main__":
-    typer.run(preprocess_mnist)
-    data_path = Path("data/raw/corruptmnist")
-    output_folder = Path("data/processed/corruptmnist")
+    typer.run(prepare_corrupt_mnist)
     # preprocess(data_path, output_folder)
-    train_set, test_set = corrupt_mnist(data_path)
+    train_set, test_set = get_corrupt_mnist(PROCESSED_DATA_PATH)
     print(f"Size of training set: {len(train_set)}")
     print(f"Size of test set: {len(test_set)}")
     print(f"Shape of a training point {(train_set[0][0].shape, train_set[0][1].shape)}")

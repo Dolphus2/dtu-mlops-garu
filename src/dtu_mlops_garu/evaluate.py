@@ -6,7 +6,7 @@ import typer
 from hydra import compose, initialize
 from omegaconf import DictConfig, OmegaConf
 
-from dtu_mlops_garu.data import PROCESSED_DATA_PATH, corrupt_mnist
+from dtu_mlops_garu.data import PROCESSED_DATA_PATH, get_corrupt_mnist
 from dtu_mlops_garu.model import Model2
 from dtu_mlops_garu.utils import train_utils
 from dtu_mlops_garu.utils.load_utils import find_model_path
@@ -40,7 +40,7 @@ def evaluate(
     model = Model2().to(DEVICE)
     model.load_state_dict(torch.load(model_checkpoint, map_location=DEVICE))
 
-    _, test_set = corrupt_mnist(PROCESSED_DATA_PATH)
+    _, test_set = get_corrupt_mnist(PROCESSED_DATA_PATH)
     test_dataloader = torch.utils.data.DataLoader(test_set, batch_size=batch_size)
 
     criterion = torch.nn.CrossEntropyLoss()

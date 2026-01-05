@@ -15,7 +15,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import torch
 
-from dtu_mlops_garu.data import PROCESSED_DATA_PATH, RAW_DATA_PATH, corrupt_mnist, preprocess_mnist
+from dtu_mlops_garu.data import PROCESSED_DATA_PATH, RAW_DATA_PATH, get_corrupt_mnist, preprocess_mnist
 from dtu_mlops_garu.utils import train_utils
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
@@ -65,7 +65,7 @@ def train(
     model = instantiate(cfg.model).to(DEVICE)  # Very cool
     log.info(f"Loaded model: {cfg.model._target_}")
 
-    training_data, _ = corrupt_mnist(PROCESSED_DATA_PATH)
+    training_data, _ = get_corrupt_mnist(PROCESSED_DATA_PATH)
     train_dataloader = torch.utils.data.DataLoader(training_data, batch_size=batch_size, shuffle=True)
 
     criterion = torch.nn.CrossEntropyLoss()
