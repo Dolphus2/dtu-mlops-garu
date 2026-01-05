@@ -1,6 +1,6 @@
 --index-url https://download.pytorch.org/whl/cu130
 --extra-index-url https://pypi.org/simple
-fastapi==0.115.6
+fastapi==0.128.0
 invoke>=2.2.0
 matplotlib>=3.10.8
 numpy>=2.4.0
