@@ -61,15 +61,19 @@ train = "dtu_mlops_garu.train:train_app"
 
 [tool.uv.sources]
 torch = [
-    { index = "pytorch-cu130" },
+    { index = "pytorch-cu130", marker = "sys_platform == 'linux' and platform_machine == 'x86_64'" },
+    { index = "pytorch-cpu", marker = "sys_platform == 'darwin' or sys_platform == 'win32'" },
 ]
 torchvision = [
-    { index = "pytorch-cu130" },
+    { index = "pytorch-cu130", marker = "sys_platform == 'linux' and platform_machine == 'x86_64'" },
+    { index = "pytorch-cpu", marker = "sys_platform == 'darwin' or sys_platform == 'win32'" },
 ]
 
 [tool.uv]
 required-environments = [
     "sys_platform == 'linux' and platform_machine == 'x86_64'",
+    "sys_platform == 'darwin' and platform_machine == 'arm64'",
+    "sys_platform == 'win32' and platform_machine == 'AMD64'",
 ]
 
 [[tool.uv.index]]
