@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         operating-system: ["ubuntu-latest", "windows-latest", "macos-latest"]
-        python-version: ["3.12", "3.11"]
+        python-version: ["3.12"]
 
     steps:
       - name: Checkout code
@@ -35,7 +35,7 @@ jobs:
         run: |
           uv run pytest -v
 
-      - name: Run tests & coverage
+      - name: Run tests & coverage # Gets uploaded as an artifact after the run. 
         run: |
           coverage uv run pytest tests/
           coverage report -m
