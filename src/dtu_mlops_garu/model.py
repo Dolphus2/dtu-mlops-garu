@@ -4,7 +4,7 @@ from torch import nn, optim
 
 
 class Model2(LightningModule):
-    def __init__(self, dropout: float) -> None:
+    def __init__(self, dropout: float = 0.5) -> None:
         super().__init__()
         self.lr = 1e-3
         self.criterion = nn.CrossEntropyLoss()
@@ -64,23 +64,23 @@ class Model2(LightningModule):
 
 
 class Model1(nn.Module):
-    def __init__(self, c1=128, out_features=10):
+    def __init__(self, c1=128, out_features=10, dropout = 0.5):
         super().__init__()
         self.c1 = c1
-        self.p = 0.5
+        self.dropout = dropout
         self.out_features = out_features
 
         self.features = nn.Sequential(
             nn.Conv2d(1, self.c1, (3, 3)),
             nn.ReLU(),
-            nn.Dropout(self.p),
+            nn.Dropout(self.dropout),
             nn.Conv2d(self.c1, self.c1, (3, 3)),
             nn.ReLU(),
             nn.Conv2d(self.c1, self.c1, (3, 3)),
             nn.ReLU(),
             nn.Conv2d(self.c1, self.c1, (3, 3)),
             nn.ReLU(),
-            nn.Dropout(self.p),
+            nn.Dropout(self.dropout),
             nn.Conv2d(self.c1, self.c1, (3, 3)),
             nn.ReLU(),
             nn.Conv2d(self.c1, self.c1, (3, 3)),

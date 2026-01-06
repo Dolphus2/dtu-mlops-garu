@@ -61,10 +61,10 @@ train = "dtu_mlops_garu.train:train_app"
 
 [tool.uv.sources]
 torch = [
-    { index = "pytorch-cpu" },
+    { index = "pytorch-cu130" },
 ]
 torchvision = [
-    { index = "pytorch-cpu" },
+    { index = "pytorch-cu130" },
 ]
 
 [tool.uv]

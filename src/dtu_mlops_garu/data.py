@@ -13,6 +13,7 @@ N_TRAIN_FILES = 5
 RAW_DATA_PATH = Path("data") / "raw" / "corruptmnist"
 PROCESSED_DATA_PATH = Path("data") / "processed" / "corruptmnist"
 
+logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
 data_app = typer.Typer(help="Data commands")
 
@@ -98,8 +99,9 @@ def get_corrupt_mnist(
 
     """
     if not data_path.exists() or not (data_path / "train_images.pt").is_file():
-        if not raw_data_path.exists() or not (raw_data_path / "train_images.pt").is_file():
+        if not raw_data_path.exists() or not (raw_data_path / "train_images_0.pt").is_file():
             _download_corrupt_mnist(raw_data_path)
+            assert(raw_data_path.exists() and (raw_data_path / "train_images_0.pt").is_file())
         preprocess_mnist(raw_data_path, data_path)
     assert(data_path.exists() and (data_path / "train_images.pt").is_file())
 
@@ -140,7 +142,7 @@ def normalize(images: torch.Tensor) -> torch.Tensor:
     dims = tuple(range(images.ndim))  # Wrong I guess. Should be over all images
     train_normalized = images - images.mean(dims, keepdim=True)
     train_normalized /= train_normalized.std(dims, keepdim=True)
-    return images
+    return train_normalized
 
 
 @data_app.command()
@@ -177,11 +179,16 @@ def preprocess(data_path: Path, output_folder: Path) -> None:
 
 
 if __name__ == "__main__":
-    typer.run(prepare_corrupt_mnist)
+    # typer.run(prepare_corrupt_mnist)
     # preprocess(data_path, output_folder)
     train_set, test_set = get_corrupt_mnist(PROCESSED_DATA_PATH)
     print(f"Size of training set: {len(train_set)}")
     print(f"Size of test set: {len(test_set)}")
     print(f"Shape of a training point {(train_set[0][0].shape, train_set[0][1].shape)}")
     print(f"Shape of a test point {(test_set[0][0].shape, test_set[0][1].shape)}")
+    print(f"Mean of training data: {train_set.tensors[0].mean()}")
+    print(f"Std of training data: {train_set.tensors[0].std()}")
+    print(f"Mean of test data: {test_set.tensors[0].mean()}")
+    print(f"Std of test data: {test_set.tensors[0].std()}")
+
     show_image_and_target(train_set.tensors[0][:25], train_set.tensors[1][:25])
