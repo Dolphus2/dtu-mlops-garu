@@ -152,4 +152,10 @@ lint.ignore = [
 ]
 
 [tool.coverage.run]
-omit = ["tests/*"]
+omit = [
+  "tests/*",
+  "*/tmp/*"]
+
+[tool.coverage.report]
+# Ignore errors for files that can't be found
+ignore_errors = true
