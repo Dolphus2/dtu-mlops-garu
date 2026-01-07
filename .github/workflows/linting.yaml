@@ -32,8 +32,8 @@ jobs:
 
       - name: ruff check
         run: |
-          ruff check .
+          uv run ruff check . --output-format=github
 
-      - name: ruff format
+      - name: ruff format check
         run: |
-          ruff format .
+          uv run ruff format --check .
