@@ -1,6 +1,9 @@
 Found spelling mistakes.
 
 
-M15 code 
+M15 code
 
 # traier.fit(model)
+
+M18 Powershell command assumes windows. Will fail on linux.
+uv run pre-commit sample-config | out-file .pre-commit-config.yaml -encoding utf8

@@ -12,7 +12,7 @@ COPY src/ src/
 COPY data/ data/
 
 # Working directory is base directory
-WORKDIR / 
+WORKDIR /
 RUN --mount=type=cache,target=/root/.cache/pip pip install -r requirements.txt
 RUN pip install . --no-deps --no-cache-dir
 

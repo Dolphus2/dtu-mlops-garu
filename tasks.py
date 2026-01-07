@@ -7,13 +7,15 @@ WINDOWS = os.name == "nt"
 PROJECT_NAME = "dtu_mlops_garu"
 PYTHON_VERSION = "3.12"
 
+
 @task
 def python(ctx: Context):
     """ """
     ctx.run(
-        command = "which python" if os.name != "nt" else "where python",
-        pty = not WINDOWS,
+        command="which python" if os.name != "nt" else "where python",
+        pty=not WINDOWS,
     )
+
 
 # Project commands
 @task
@@ -30,10 +32,7 @@ def preprocess_data(ctx: Context) -> None:
 def train(ctx: Context, model_path: str = "models/trained_model.pth", extra_args: str = "") -> None:
     """Train model."""
     extra = f" {extra_args}" if extra_args else ""
-    ctx.run(f"uv run src/{PROJECT_NAME}/train.py --model-path {model_path}{extra}",
-        echo=True,
-        pty=not WINDOWS
-    )
+    ctx.run(f"uv run src/{PROJECT_NAME}/train.py --model-path {model_path}{extra}", echo=True, pty=not WINDOWS)
 
 
 @task
@@ -63,22 +62,26 @@ def docker_build(ctx: Context, progress: str = "auto") -> None:
         pty=not WINDOWS,
     )
     # ctx.run(
-    #     f"docker build -t api:latest . -f dockerfiles/api.dockerfile --progress={progress}", echo=True, pty=not WINDOWS
+    #     f"docker build -t api:latest . -f dockerfiles/api.dockerfile --progress={progress}",
+    # \ echo=True, pty=not WINDOWS
     # )
 
+
 @task
-def docker_run_train(ctx: Context, model_path: str = "models/trained_model.pth", gpus = True) -> None:
+def docker_run_train(ctx: Context, model_path: str = "models/trained_model.pth", gpus=True) -> None:
     """Run the train image with an optional model path mounted."""
     gpus_str = "--gpus all " if gpus else ""
     ctx.run(
         f"docker run {gpus_str}\
-        --name train --rm -v {Path.cwd()}/models/{Path(model_path).name}:/app/models/{Path(model_path).name} train:latest --model-path {model_path}",
+        --name train --rm -v {Path.cwd()}/models/{Path(model_path).name}:/app/models/{Path(model_path).name} \
+            train:latest --model-path {model_path}",
         echo=True,
         pty=not WINDOWS,
     )
 
+
 @task
-def docker_run_evaluate(ctx: Context, gpus = True) -> None:
+def docker_run_evaluate(ctx: Context, gpus=True) -> None:
     """Run the evaluate image using a mounted model"""
     host = Path.cwd()
     gpus_str = "--gpus all " if gpus else ""
@@ -93,6 +96,7 @@ def docker_run_evaluate(ctx: Context, gpus = True) -> None:
         echo=True,
         pty=not WINDOWS,
     )
+
 
 # Documentation commands
 @task

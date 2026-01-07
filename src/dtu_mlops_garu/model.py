@@ -64,7 +64,7 @@ class Model2(LightningModule):
 
 
 class Model1(nn.Module):
-    def __init__(self, c1=128, out_features=10, dropout = 0.5):
+    def __init__(self, c1=128, out_features=10, dropout=0.5):
         super().__init__()
         self.c1 = c1
         self.dropout = dropout

@@ -13,4 +13,3 @@ hyperparameters:
   momentum: 0.9
 logging:
   print_freq: 100
-

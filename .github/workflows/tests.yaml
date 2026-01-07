@@ -35,7 +35,7 @@ jobs:
         run: |
           uv run pytest -v
 
-      - name: Run tests & coverage # Gets uploaded as an artifact after the run. 
+      - name: Run tests & coverage # Gets uploaded as an artifact after the run.
         run: |
           uv run coverage run -m pytest tests/
           uv run coverage report -m

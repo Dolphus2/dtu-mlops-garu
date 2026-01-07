@@ -1,6 +1,6 @@
-from pathlib import Path
 import logging
 import subprocess
+from pathlib import Path
 
 import matplotlib.pyplot as plt  # only needed for plotting
 import torch
@@ -35,24 +35,29 @@ class MyDataset(Dataset):
 
 
 def _download_corrupt_mnist(output_dir: Path = RAW_DATA_PATH) -> None:
-    """Download the CorruptMNIST dataset from Google Drive using gdown.
-    
+    """
+    Download the CorruptMNIST dataset from Google Drive using gdown.
+
     Parameters
     ----------
     output_dir : Path
         Directory where the raw dataset will be downloaded. Defaults to RAW_DATA_PATH.
-    
+
     """
     try:
         subprocess.run(["uv", "add", "gdown"], check=True)
         output_dir.mkdir(parents=True, exist_ok=True)
         subprocess.run(
             [
-                "uv", "run", "gdown", "--folder",
+                "uv",
+                "run",
+                "gdown",
+                "--folder",
                 "https://drive.google.com/drive/folders/1ddWeCcsfmelqxF8sOGBihY9IU98S9JRP?usp=sharing",
-                "-O", str(output_dir)
+                "-O",
+                str(output_dir),
             ],
-            check=True
+            check=True,
         )
         log.info(f"Dataset downloaded successfully to {output_dir}")
     except subprocess.CalledProcessError as e:
@@ -60,10 +65,7 @@ def _download_corrupt_mnist(output_dir: Path = RAW_DATA_PATH) -> None:
         raise
 
 
-def prepare_corrupt_mnist(
-    raw_data_path: Path = RAW_DATA_PATH,
-    processed_data_path: Path = PROCESSED_DATA_PATH
-) -> None:
+def prepare_corrupt_mnist(raw_data_path: Path = RAW_DATA_PATH, processed_data_path: Path = PROCESSED_DATA_PATH) -> None:
     """Prepare CorruptMNIST dataset by downloading and preprocessing if needed."""
     if not (processed_data_path / "train_images.pt").is_file():
         if not (raw_data_path / "train_images_0.pt").is_file():
@@ -71,13 +73,11 @@ def prepare_corrupt_mnist(
         preprocess_mnist(raw_data_path, processed_data_path)
     else:
         log.info("Processed dataset already present")
-    
 
 
 @data_app.command()
 def get_corrupt_mnist(
-    data_path: Path = PROCESSED_DATA_PATH, 
-    raw_data_path: Path = RAW_DATA_PATH
+    data_path: Path = PROCESSED_DATA_PATH, raw_data_path: Path = RAW_DATA_PATH
 ) -> tuple[torch.utils.data.Dataset, torch.utils.data.Dataset]:
     """
     Load processed CorruptMNIST tensors from disk and return PyTorch datasets.
@@ -101,9 +101,9 @@ def get_corrupt_mnist(
     if not data_path.exists() or not (data_path / "train_images.pt").is_file():
         if not raw_data_path.exists() or not (raw_data_path / "train_images_0.pt").is_file():
             _download_corrupt_mnist(raw_data_path)
-            assert(raw_data_path.exists() and (raw_data_path / "train_images_0.pt").is_file())
+            assert raw_data_path.exists() and (raw_data_path / "train_images_0.pt").is_file()
         preprocess_mnist(raw_data_path, data_path)
-    assert(data_path.exists() and (data_path / "train_images.pt").is_file())
+    assert data_path.exists() and (data_path / "train_images.pt").is_file()
 
     train_images: torch.tensor = torch.load(f"{data_path}/train_images.pt", weights_only=True)
     train_target: torch.tensor = torch.load(f"{data_path}/train_target.pt", weights_only=True)

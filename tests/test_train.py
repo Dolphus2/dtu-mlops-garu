@@ -1,17 +1,15 @@
-import pytest
-import numpy as np
 import torch
-import wandb
 
-from dtu_mlops_garu.model import Model2
-from dtu_mlops_garu.train import train
-from dtu_mlops_garu.utils.train_utils import train_epoch
+import wandb
 from dtu_mlops_garu.data import PROCESSED_DATA_PATH, get_dataloaders
+from dtu_mlops_garu.model import Model2
+from dtu_mlops_garu.utils.train_utils import train_epoch
 
 BATCH_SIZE = 64
 LR = 1e-3
 MOMENTUM = 0.9
 wandb.init(mode="disabled")
+
 
 def test_train():
     model = Model2()
@@ -21,8 +19,3 @@ def test_train():
 
     for dataloader in [train_dataloader, test_dataloader]:
         epoch_stats = train_epoch(dataloader, model, criterion, optimizer, device="cpu")
-
-
-
-
-            

@@ -14,10 +14,12 @@ def log_images(model, img: torch.Tensor):
     grads = torch.cat([p.grad.flatten() for p in model.parameters() if p.grad is not None], 0)
     wandb.log({"gradients": wandb.Histogram(grads.cpu())})
 
+
 def normalize(img: torch.Tensor):
-    img += img.view(-1,1,28*28).min(axis =2, keepdim = True).values.unsqueeze(-1)
-    img /= img.view(-1,1,28*28).max(axis =2, keepdim = True).values.unsqueeze(-1)
+    img += img.view(-1, 1, 28 * 28).min(axis=2, keepdim=True).values.unsqueeze(-1)
+    img /= img.view(-1, 1, 28 * 28).max(axis=2, keepdim=True).values.unsqueeze(-1)
     return img * 255
+
 
 def log_ROC(targets, preds):
     fig, ax = plt.subplots(figsize=(8, 6))
