@@ -10,7 +10,7 @@ import typer
 from mpl_toolkits.axes_grid1 import ImageGrid  # only needed for plotting
 from torch.utils.data import DataLoader, Dataset
 
-matplotlib.use("QtAgg")
+matplotlib.use("Agg")
 
 N_TRAIN_FILES = 5
 
@@ -215,7 +215,7 @@ def dataset_statistics(data_path: Path = PROCESSED_DATA_PATH, save_dir: Optional
 
 if __name__ == "__main__":
     # typer.run(prepare_corrupt_mnist)
-    dataset_statistics(PROCESSED_DATA_PATH, SAVE_DIR, show=True)
+    dataset_statistics(PROCESSED_DATA_PATH, SAVE_DIR, show=False)
 
     # train_set, test_set = get_corrupt_mnist(PROCESSED_DATA_PATH)
     # print(f"Size of training set: {len(train_set)}")
