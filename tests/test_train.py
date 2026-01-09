@@ -1,6 +1,6 @@
 import torch
-
 import wandb
+
 from dtu_mlops_garu.data import PROCESSED_DATA_PATH, get_dataloaders
 from dtu_mlops_garu.model import Model2
 from dtu_mlops_garu.utils.train_utils import train_epoch

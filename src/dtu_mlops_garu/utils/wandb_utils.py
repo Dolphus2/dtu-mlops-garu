@@ -1,8 +1,7 @@
 import matplotlib.pyplot as plt
 import torch
-from sklearn.metrics import RocCurveDisplay
-
 import wandb
+from sklearn.metrics import RocCurveDisplay
 
 
 def log_images(model, img: torch.Tensor):
