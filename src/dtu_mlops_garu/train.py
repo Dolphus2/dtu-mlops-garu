@@ -3,20 +3,19 @@ import time
 from pathlib import Path
 
 import matplotlib
+import matplotlib.pyplot as plt
 import numpy as np
+import torch
 import typer
+import wandb
 from hydra import compose, initialize
 from hydra.utils import instantiate
 from omegaconf import DictConfig, OmegaConf
 
-import wandb
-
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-import torch
-
 from dtu_mlops_garu.data import PROCESSED_DATA_PATH, RAW_DATA_PATH, get_corrupt_mnist, preprocess_mnist
 from dtu_mlops_garu.utils import train_utils
+
+matplotlib.use("Agg")
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
 
