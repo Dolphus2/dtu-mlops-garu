@@ -1,17 +1,22 @@
 import logging
 import subprocess
 from pathlib import Path
+from typing import Optional
 
+import matplotlib
 import matplotlib.pyplot as plt  # only needed for plotting
 import torch
 import typer
 from mpl_toolkits.axes_grid1 import ImageGrid  # only needed for plotting
 from torch.utils.data import DataLoader, Dataset
 
+matplotlib.use("QtAgg")
+
 N_TRAIN_FILES = 5
 
 RAW_DATA_PATH = Path("data") / "raw" / "corruptmnist"
 PROCESSED_DATA_PATH = Path("data") / "processed" / "corruptmnist"
+SAVE_DIR = Path("reports") / "figures"
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
@@ -126,7 +131,9 @@ def get_dataloaders(
     return train_dataloader, test_dataloader
 
 
-def show_image_and_target(images: torch.Tensor, target: torch.Tensor) -> None:
+def show_image_and_target(
+    images: torch.Tensor, target: torch.Tensor, save_path: Optional[Path] = None, show: bool = False
+) -> None:
     """Plot images and their labels in a grid."""
     row_col = int(len(images) ** 0.5)
     fig = plt.figure(figsize=(10.0, 10.0))
@@ -135,7 +142,13 @@ def show_image_and_target(images: torch.Tensor, target: torch.Tensor) -> None:
         ax.imshow(im.squeeze(), cmap="gray")
         ax.set_title(f"Label: {label.item()}")
         ax.axis("off")
-    plt.show()
+    if save_path:
+        save_path.parent.mkdir(parents=True, exist_ok=True)
+        plt.savefig(save_path)
+        log.info(f"Saved figure to {save_path}")
+    if show:
+        plt.show()
+    plt.close()
 
 
 def normalize(images: torch.Tensor) -> torch.Tensor:
@@ -178,10 +191,8 @@ def preprocess(data_path: Path, output_folder: Path) -> None:
     dataset.preprocess(output_folder)
 
 
-if __name__ == "__main__":
-    # typer.run(prepare_corrupt_mnist)
-    # preprocess(data_path, output_folder)
-    train_set, test_set = get_corrupt_mnist(PROCESSED_DATA_PATH)
+def dataset_statistics(data_path: Path = PROCESSED_DATA_PATH, save_dir: Optional[Path] = SAVE_DIR, show: bool = False):
+    train_set, test_set = get_corrupt_mnist(data_path)
     print(f"Size of training set: {len(train_set)}")
     print(f"Size of test set: {len(test_set)}")
     print(f"Shape of a training point {(train_set[0][0].shape, train_set[0][1].shape)}")
@@ -190,5 +201,30 @@ if __name__ == "__main__":
     print(f"Std of training data: {train_set.tensors[0].std()}")
     print(f"Mean of test data: {test_set.tensors[0].mean()}")
     print(f"Std of test data: {test_set.tensors[0].std()}")
+    if save_dir:
+        show_image_and_target(
+            train_set.tensors[0][:25],
+            train_set.tensors[1][:25],
+            save_path=save_dir / "sample_train_images.png",
+            show=show,
+        )
+        show_image_and_target(
+            test_set.tensors[0][:25], test_set.tensors[1][:25], save_path=save_dir / "sample_test_images.png", show=show
+        )
 
-    show_image_and_target(train_set.tensors[0][:25], train_set.tensors[1][:25])
+
+if __name__ == "__main__":
+    # typer.run(prepare_corrupt_mnist)
+    dataset_statistics(PROCESSED_DATA_PATH, SAVE_DIR, show=True)
+
+    # train_set, test_set = get_corrupt_mnist(PROCESSED_DATA_PATH)
+    # print(f"Size of training set: {len(train_set)}")
+    # print(f"Size of test set: {len(test_set)}")
+    # print(f"Shape of a training point {(train_set[0][0].shape, train_set[0][1].shape)}")
+    # print(f"Shape of a test point {(test_set[0][0].shape, test_set[0][1].shape)}")
+    # print(f"Mean of training data: {train_set.tensors[0].mean()}")
+    # print(f"Std of training data: {train_set.tensors[0].std()}")
+    # print(f"Mean of test data: {test_set.tensors[0].mean()}")
+    # print(f"Std of test data: {test_set.tensors[0].std()}")
+
+    # show_image_and_target(train_set.tensors[0][:25], train_set.tensors[1][:25])

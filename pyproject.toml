@@ -25,6 +25,7 @@ dependencies = [
     "matplotlib>=3.10.8",
     "numpy>=2.4.0",
     "omegaconf>=2.3.0",
+    "pyqt5>=5.15.11",
     "pytorch-lightning>=2.6.0",
     "scikit-learn>=1.8.0",
     "torch>=2.5.0",
