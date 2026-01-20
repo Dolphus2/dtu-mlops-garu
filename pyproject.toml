@@ -37,7 +37,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "coverage==7.13.1",
-    "invoke==2.2.0",
+    "invoke==2.2.1",
     "mkdocs-material==9.4.6",
     "mkdocs==1.6.1",
     "pre-commit==4.1.0",
@@ -48,7 +48,7 @@ dev = [
 [dependency-groups] # Unclear to me what this does
 dev = [
     "coverage==7.13.1",
-    "invoke==2.2.0",
+    "invoke==2.2.1",
     "mkdocs-material==9.4.6",
     "mkdocs==1.6.1",
     "pre-commit==4.1.0",
