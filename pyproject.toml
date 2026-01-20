@@ -43,7 +43,7 @@ dev = [
     "pre-commit==4.1.0",
     "pytest==9.0.2",
     "ruff>=0.8.0",
-    "mkdocstrings-python==1.12.2",
+    "mkdocstrings-python==2.0.1",
 ]
 [dependency-groups] # Unclear to me what this does
 dev = [
@@ -54,7 +54,7 @@ dev = [
     "pre-commit==4.1.0",
     "pytest==9.0.2",
     "ruff>=0.8.0",
-    "mkdocstrings-python==1.12.2",
+    "mkdocstrings-python==2.0.1",
 ]
 [project.scripts]
 train = "dtu_mlops_garu.train:train_app"
